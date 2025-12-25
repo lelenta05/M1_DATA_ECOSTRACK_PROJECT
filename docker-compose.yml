@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  ecotrack_svc : #nom du service 
+    image: postgis/postgis:15-3.3 #image officielle de postgreSQL et postgis installe 
+    container_name: ecotrack_db # nom du conteneur 
+    environment:
+      POSTGRESQL_DB: ${BD_NAME:-ecotrack_dw} #nom de la datawarehoue 
+      POSTGRESQL_USER: ${BD_USER:-ecotrack_user} # nom de l'user 
+      POSTGRESQL_PASSWORD: ${DB_PASSWORD:-ecotrack2025} # mot de passe de l'user 
+      POSTGRESQL_INIT_ARGS: "--encoding=UTF8"
+    ports:
+      - "${DB_PORT:-5432}:5432" # le port qu'on a utilise 
+    volumes:
+    #persistance des donnees
+      - postresql_data:/var/lib/postgresql/data # le dossier ou postgresql stocke ses donnees dans le conteneur 
+    #volume pour restaurer/sauvegarde  
+      - ./backups:/backups
+      - ./sql/data:/docker-entrypoint-initdb.d # permet d'excecute les fichiers .sql lors de la creation de la base 
+    restart: unless-stopped #redemarrage automatique qui peut etre arrete avec la cmd docker stop
+
+
+volumes:
+  postresql_data: # le volume qu'on va utilise pour le stockage de nos donnees et la comservation de nos donnee meme apres la supression du conteneur 
+      
