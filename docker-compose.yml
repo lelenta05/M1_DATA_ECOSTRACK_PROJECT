@@ -1,29 +1,48 @@
 services:
-  ecotrack_svc : #nom du service 
+  ecotrack_oltp : #nom du service 
     image: postgis/postgis:15-3.3 #image officielle de postgreSQL et postgis installe 
-    container_name: ecotrack_db # nom du conteneur 
+    container_name: ecotrack_oltp # nom du conteneur 
     environment:
-      POSTGRES_DB: ecotrack_dw   #nom de la datawarehoue 
+      POSTGRES_DB: ecotrack_oltp   #nom de la datawarehoue 
       POSTGRES_USER: admin  # nom de l'user 
       POSTGRES_PASSWORD: admin # mot de passe a utilise est : DB_PASSWORD qui se trouve dans .env sinon utilise NewEcotrack2025 
     ports:
       - "5432:5432" # le port qu'on a utilise 
     volumes:
     #persistance des donnees
-      - postresql_data:/var/lib/postgresql/data # le dossier ou postgresql stocke ses donnees dans le conteneur 
-      - ./sql/data:/docker-entrypoint-initdb.d # permet d'excecute les fichiers .sql lors de la creation de la base 
+      - postgresql_oltp_data:/var/lib/postgresql/data # le dossier ou postgresql stocke ses donnees dans le conteneur 
+      - ./sql/data/oltp_schema.sql:/docker-entrypoint-initdb.d/oltp_schema.sql # permet d'excecute les fichiers .sql lors de la creation de la base 
     restart: unless-stopped #redemarrage automatique qui peut etre arrete avec la cmd docker stop
 
+  ecotrack_olap:
+    image: postgis/postgis:15-3.3  #pour le datawarehouse 
+    environment:
+      POSTGRES_DB: ecotrack_olap
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgresql_olap_data:/var/lib/postgresql/data # le dossier ou postgresql stocke ses donnees dans le conteneur 
+      - ./sql/data/olap_schema.sql:/docker-entrypoint-initdb.d/olap_schema.sql # permet d'excecute les fichiers .sql lors de la creation de la base 
+    restart: unless-stopped
+    depends_on:
+    - ecotrack_oltp       
+      
   adminer:
     image: adminer:latest
     container_name: ecotrack_adminer
     ports:
       - "8080:8080"
     depends_on:
-      - ecotrack_svc
+      - ecotrack_oltp
+      - ecotrack_olap
     restart: unless-stopped
 
 
 volumes:
-  postresql_data: # le volume qu'on va utilise pour le stockage de nos donnees et la comservation de nos donnee meme apres la supression du conteneur 
+  postgresql_oltp_data: # le volume qu'on va utilise pour le stockage de nos donnees et la comservation de nos donnee meme apres la supression du conteneur 
+    driver: local
+  postgresql_olap_data:
+    driver: local
       
