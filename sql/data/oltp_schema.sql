@@ -11,7 +11,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 --CREATION DES TABLES DE L'OLTP 
 
 CREATE TABLE IF NOT EXISTS USERS(
-    id_user INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
+    id_user INTEGER  PRIMARY KEY ,
     email VARCHAR(255) NOT NULL UNIQUE ,
     password VARCHAR(225) NOT NULL,
     firstname VARCHAR(20) NOT NULL ,
@@ -22,33 +22,33 @@ CREATE TABLE IF NOT EXISTS USERS(
 );
 
 CREATE TABLE IF NOT EXISTS ROLES(
-    id_role INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
+    id_role INTEGER  PRIMARY KEY ,
     name VARCHAR (20) NOT NULL ,
     description TEXT NULL ,
     CONSTRAINT chk_role CHECK (name IN ('citoyen','agent','gestionnaire','admin'))
 );
 CREATE TABLE IF NOT EXISTS USERS_ROLES(
-    id_user_role INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
+    id_user_role INTEGER  PRIMARY KEY ,
     id_user INTEGER NOT NULL REFERENCES USERS(id_user) ON DELETE CASCADE,
     id_role INTEGER NOT NULL REFERENCES ROLES(id_role) ON DELETE CASCADE,
     assigned_at TIMESTAMP NOT NULL  --assigne a 
 );
 CREATE TABLE IF NOT EXISTS BADGES(
-    id_badge INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
+    id_badge INTEGER  PRIMARY KEY ,
     code_badge VARCHAR(10) NOT NULL,
     name VARCHAR(30) NOT NULL ,
     description TEXT NULL 
 );
 
 CREATE TABLE IF NOT EXISTS USERS_BADGES (
-    id_user_badge INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
+    id_user_badge INTEGER  PRIMARY KEY ,
     id_user INTEGER NOT NULL REFERENCES USERS(id_user) ON DELETE CASCADE ,
     id_badge INTEGER NOT NULL REFERENCES BADGES(id_badge) ON DELETE CASCADE,
     earned_at TIMESTAMP NOT NULL --gagne a 
 );
 
 CREATE TABLE IF NOT EXISTS ZONES(
-    id_zone INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
+    id_zone INTEGER  PRIMARY KEY ,
     code_zone VARCHAR(10) NOT NULL ,
     name VARCHAR(20) NOT NULL ,
     population INTEGER NOT NULL ,
@@ -56,14 +56,14 @@ CREATE TABLE IF NOT EXISTS ZONES(
     polygon  GEOMETRY(Polygon, 4326) NOT NULL 
 );
 CREATE TABLE IF NOT EXISTS CONTAINER_TYPES (
-    id_container_type INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
+    id_container_type INTEGER  PRIMARY KEY ,
     code_container_type VARCHAR(10) NOT NULL ,
     name VARCHAR(20) NOT NULL,
     description TEXT NULL
 );
 
 CREATE TABLE IF NOT EXISTS CONTAINERS(
-    id_container INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
+    id_container INTEGER PRIMARY KEY ,
     uuid_container UUID DEFAULT uuid_generate_v4() NOT NULL UNIQUE ,
     capacity_l DECIMAL(5,2) NOT NULL ,
     status VARCHAR(20) DEFAULT 'actif' NOT NULL,
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS CONTAINERS(
 );
 
 CREATE TABLE IF NOT EXISTS CAPTEURS(
-    id_capteur INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
+    id_capteur INTEGER  PRIMARY KEY ,
     uuid_capteur UUID DEFAULT uuid_generate_v4() NOT NULL UNIQUE ,
     model VARCHAR(30) NOT NULL ,
     firware_version VARCHAR(20) NOT NULL ,--version_du_micrologiciel
@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS CAPTEURS(
 );
 
 CREATE TABLE IF NOT EXISTS MAINTENANCES(
-    id_maintenance INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
+    id_maintenance INTEGER  PRIMARY KEY ,
     maintenance_type VARCHAR(20) NOT NULL ,
     status VARCHAR(20) DEFAULT 'ATTENTE',
     sheduled_at DATE NOT NULL , --PROGRAMME A 
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS MAINTENANCES(
     id_capteur INTEGER NOT NULL REFERENCES CAPTEURS(id_capteur)
 );
 CREATE TABLE IF NOT EXISTS VEHICULES(
-    id_vehicule INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_vehicule INTEGER  PRIMARY KEY,
     registration_number VARCHAR(20) NOT NULL ,--numero d'immatriculation 
     model VARCHAR(20) NOT NULL ,
     capacite DECIMAL(5,2) NOT NULL ,
@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS VEHICULES(
 );
 
 CREATE TABLE IF NOT EXISTS ROUTES(--TOURNEE
-    id_route INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
+    id_route INTEGER PRIMARY KEY ,
     code VARCHAR(10) NOT NULL ,
     date DATE NOT NULL ,
     status VARCHAR(20) NOT NULL,
@@ -146,7 +146,7 @@ FOR EACH ROW
 EXECUTE FUNCTION check_agent_role();
 --fin
 CREATE TABLE IF NOT EXISTS ROUTE_STEPS(
-    id_route_step INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
+    id_route_step INTEGER  PRIMARY KEY ,
     sequence INTEGER NOT NULL ,--INDIQUE L'ORDRE DE PASSGGE (1,2,..)
     eta TIMESTAMP NOT NULL, -- estimated time of arrival
     collected BOOLEAN DEFAULT FALSE , --collecte ou pas
@@ -154,7 +154,7 @@ CREATE TABLE IF NOT EXISTS ROUTE_STEPS(
     id_container INTEGER NOT NULL REFERENCES CONTAINERS(id_container) 
 );
 CREATE TABLE IF NOT EXISTS COLLECTIONS(
-    id_collection INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
+    id_collection INTEGER  PRIMARY KEY ,
     collection_at TIMESTAMP,
     qauntite_kg DECIMAL(10,2) NOT NULL ,
     sequence INTEGER NOT NULL ,
@@ -162,7 +162,7 @@ CREATE TABLE IF NOT EXISTS COLLECTIONS(
     id_container INTEGER NOT NULL REFERENCES CONTAINERS(id_container)
 );
 CREATE TABLE IF NOT EXISTS SIGNALEMENTS(
-    id_signalement INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
+    id_signalement INTEGER  PRIMARY KEY ,
     signalement_type VARCHAR(30) NOT NULL,
     description TEXT NULL ,
     status VARCHAR(20) NOT NULL DEFAULT 'NON-TRAITE',
@@ -173,7 +173,7 @@ CREATE TABLE IF NOT EXISTS SIGNALEMENTS(
 );
 
 CREATE TABLE IF NOT EXISTS SIGNALEMENT_TREATMENTS(
-    id_treatment INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
+    id_treatment INTEGER  PRIMARY KEY ,
     treated_at TIMESTAMP NOT NULL ,
     comment TEXT NULL ,
     id_signalement INTEGER NOT NULL REFERENCES SIGNALEMENTS(id_signalement),
@@ -186,7 +186,7 @@ FOR EACH ROW
 EXECUTE FUNCTION check_agent_role() ;
 
 CREATE TABLE IF NOT EXISTS MESURES(
-    id_mesure INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
+    id_mesure INTEGER  PRIMARY KEY ,
     distance_brute_mm DECIMAL(5,2) NOT NULL ,
     fill_level_pct DECIMAL(5,2) NOT NULL ,
     battery_pct DECIMAL(5,2) NOT NULL ,
@@ -220,12 +220,12 @@ CREATE INDEX idx_id_container_collection ON COLLECTIONS(id_container) ;
 CREATE INDEX idx_id_vehicule_route ON ROUTES(id_vehicule) ;
 CREATE INDEX idx_id_agent_route ON ROUTES (id_agent) ;
 --route_step
-CREATE INDEX idx_id_route_step ON ROUTE_SETPS(id_route) ;
-CREATE INDEX idx_id_container_step ON ROUTE_SETPS(id_container) ;
+CREATE INDEX idx_id_route_step ON ROUTE_STEPS(id_route) ;
+CREATE INDEX idx_id_container_step ON ROUTE_STEPS(id_container) ;
 --container 
 CREATE INDEX idx_id_zone_container ON CONTAINERS(id_zone);
 --capteur
-CREATE INDEX idx_id_container ON CAPTEURS(id_container);
+CREATE INDEX idx_id_container_capteur ON CAPTEURS(id_container);
 --user_badge
 CREATE INDEX idx_id_user_badge ON USERS_BADGES(id_user);
 CREATE INDEX idx_id_badge ON USERS_BADGES(id_badge);
@@ -235,7 +235,7 @@ CREATE INDEX idx_id_user_ur ON USERS_ROLES(id_user);
 CREATE INDEX idx_id_role ON USERS_ROLES(id_role);
 
 --MAINTENANCE
-CREATE INDEX idx_id_container ON MAINTENANCES(id_container);
+CREATE INDEX idx_id_container_maintenance ON MAINTENANCES(id_container);
 CREATE INDEX idx_id_capteur ON MAINTENANCES(id_capteur);
 
 
