@@ -20,3 +20,14 @@ COPY badges(id_badge, code_badge, name, description)
 FROM '/var/lib/postgresql/data/badges.csv'
 WITH (FORMAT CSV, HEADER TRUE);
 ```
+4-correction direct dans Adminer du nombre de caractere "table vehicules" :
+```bash
+CREATE TABLE IF NOT EXISTS VEHICULES (
+    id_vehicule INTEGER  PRIMARY KEY,
+    registration_number VARCHAR(20) NOT NULL ,--numero d'immatriculation 
+    model VARCHAR(20) NOT NULL ,
+    capacite DECIMAL(5,2) NOT NULL , -- modification nombre caractere :(10,2)
+    consommation_moyenne DECIMAL(5,2) NOT NULL ,
+    emission_co2_km DECIMAL(5,2) NOT NULL --modfication nombre de caractere :(6,2)
+    );
+    ```
