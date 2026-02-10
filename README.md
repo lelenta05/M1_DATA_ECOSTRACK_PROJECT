@@ -15,7 +15,7 @@ Ces informations sont dans le fichier docker-compose.yml
 3-integration des donnees dans adminer:
 etape 1: copier chemin d'acces du fichier csv dans le dossier du conteneur
 ```bash
-docker cp "chemin vers le dossier\OLTP CSV\badges.csv" ecotrack_oltp:/var/lib/postgresql/data/badges.csv
+docker note
 COPY badges(id_badge, code_badge, name, description)
 FROM '/var/lib/postgresql/data/badges.csv'
 WITH (FORMAT CSV, HEADER TRUE);

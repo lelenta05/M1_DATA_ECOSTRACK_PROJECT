@@ -6,6 +6,7 @@
 CREATE EXTENSION IF NOT EXISTS postgis ;
 SELECT POSTGIS_VERSION() ;
 
+
 --CREATION DES DIMENSIONS 
 CREATE TABLE IF NOT EXISTS DIM_TEMPS(
     temps_sk INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
@@ -14,6 +15,8 @@ CREATE TABLE IF NOT EXISTS DIM_TEMPS(
     mois INTEGER GENERATED ALWAYS AS (EXTRACT(MONTH FROM date_complete)) STORED ,
     trimestre INTEGER GENERATED ALWAYS AS (EXTRACT (QUARTER FROM date_complete)) STORED ,
     annee INTEGER GENERATED ALWAYS AS (EXTRACT(YEAR FROM date_complete)) STORED ,
+    nom_jour VARCHAR(20) NOT NULL ,
+    nom_mois VARCHAR(20) NOT NULL,
     est_weekend BOOLEAN DEFAULT FALSE ,
     est_ferie BOOLEAN DEFAULT FALSE 
 );
@@ -23,21 +26,20 @@ CREATE TABLE IF NOT EXISTS DIM_TYPE_DECHETS(
     code_type_dechet VARCHAR(10) NOT NULL UNIQUE,
     name VARCHAR(20) NOT NULL ,
     description TEXT NULL,
-    couleur VARCHAR(10),
-    densite DECIMAL(5,2)
+    couleur VARCHAR(10)  NULL ,
+    densite DECIMAL(5,2) NULL 
 );
 CREATE TABLE IF NOT EXISTS DIM_ZONES(
     zone_sk INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
     zone_code VARCHAR(10) NOT NULL UNIQUE,
-    type_zone VARCHAR(20) NOT NULL ,
     name VARCHAR(20) NOT NULL ,
+    population INTEGER NOT NULL ,
     area_km2 DECIMAL(10,2) NOT NULL ,
     polygon GEOMETRY(Polygon,4326) NOT NULL
 );
 CREATE TABLE IF NOT EXISTS DIM_CONTAINERS(
     container_sk INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
     container_code VARCHAR(10) NOT NULL UNIQUE ,
-    container_type VARCHAR(20) NOT NULL ,
     capacity_l DECIMAL(5,2) NOT NULL ,
     install_date DATE NOT NULL ,
     location GEOMETRY(Point,4326) NOT NULL,--index
@@ -48,30 +50,28 @@ CREATE TABLE IF NOT EXISTS DIM_CONTAINERS(
     is_current BOOLEAN DEFAULT TRUE,
     --DENORMALISER 
     code_zone VARCHAR(10) NOT NULL ,
-    code_type_dechet VARCHAR(10) NOT NULL 
+    code_type_dechet VARCHAR(10) NOT NULL    
 
 );
 CREATE TABLE IF NOT EXISTS DIM_CAPTEURS(
     capteur_sk INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
     capteur_code VARCHAR(10) NOT NULL UNIQUE ,
     model VARCHAR(20) NOT NULL ,
-    firmware_version  VARCHAR(20) NOT NULL,
+    firware_version  VARCHAR(20) NOT NULL,
     last_seen DATE NOT NULL ,
     container_code VARCHAR(10) NOT NULL 
 );
 CREATE TABLE IF NOT EXISTS DIM_VEHICULES(
     vehicule_sk INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
-    vehicule_code VARCHAR(10) NOT NULL UNIQUE ,
-    registration_number VARCHAR(30) NOT NULL ,
+    registration_number VARCHAR(30) NOT NULL UNIQUE ,
     model VARCHAR(20) NOT NULL ,
     capacite DECIMAL(5,2) NOT NULL ,
-    consommation DECIMAL(5,2) NOT NULL ,
+    consommation_moyenne DECIMAL(5,2) NOT NULL ,
     emission_co2_km DECIMAL(5,2) NOT NULL 
 );
 
 CREATE TABLE IF NOT EXISTS DIM_AGENTS(
     agent_sk INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
-    agent_code VARCHAR(10) NOT NULL UNIQUE ,
     firstname VARCHAR(20) NOT NULL ,
     lastname VARCHAR(20) NOT NULL ,
     is_active BOOLEAN DEFAULT TRUE NOT NULL,
@@ -80,14 +80,13 @@ CREATE TABLE IF NOT EXISTS DIM_AGENTS(
 CREATE TABLE IF NOT EXISTS DIM_TOURNEES(
     tournee_sk INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
     tournee_code VARCHAR(10) NOT NULL UNIQUE ,
-    quantity_kg DECIMAL(5,2) NOT NULL ,
     sequence INTEGER NOT NULL ,
+    geom_route GEOMETRY(LineString, 4326);
     distance_m DECIMAL(5,2) NOT NULL ,
     duration_min DECIMAL(5,2) NOT NULL ,
     --denormalisation 
-    agent_code VARCHAR(10) NOT NULL ,
-    vehicule_code VARCHAR(10) NOT NULL ,
-    zone_code VARCHAR(10) NOT NULL ,
+   registration_number VARCHAR(30) NOT NULL ,
+    email VARCHAR(10) NOT NULL , --email de agent qui est unique donc peut w
     container_code VARCHAR(10) NOT NULL 
 );
 
@@ -102,14 +101,14 @@ CREATE TABLE IF NOT EXISTS FAIT_MESURES(
 	agent_sk INTEGER NOT NULL ,
     vehicule_sk INTEGER NOT NULL ,
 	tournee_sk INTEGER NOT NULL ,
-	taux_remplissage DECIMAL(5,2) NOT NULL ,
-	volume_litres DECIMAL(5,2) NOT NULL ,
-	temperatures DECIMAL(5,2) NOT NULL ,
-	poids INTEGER NOT NULL ,
-    is_overflow BOOLEAN NOT NULL,
-    niveau_batterie INTEGER NOT NULL ,
-	timestamp_mesure TIMESTAMP NOT NULL,
-	qualite_signal VARCHAR(20) NULL ,
+    distance_brute_mm DECIMAL(5,2) NOT NULL ,
+	fill_level_pct DECIMAL(5,2) NOT NULL ,
+	volume_litre DECIMAL(5,2) NOT NULL ,
+	timestamp_mesure TIMESTAMP NOT NULL ,
+    is_overflow BOOLEAN NOT NULL DEFAULT False,
+    temperature DECIMAL (5,2) NOT NULL,
+    battery_pct INTEGER NOT NULL ,
+	qualite_signal VARCHAR(20) NULL DEFAULT 'Moyen' --mauvais, moyen, excelent,
 	PRIMARY KEY (id_fm,timestamp_mesure),--obligatoire de mettre timestamp_mesure dans la cle primaire pour le partitionnement
 	CONSTRAINT fk_temps FOREIGN KEY (temps_sk) REFERENCES DIM_TEMPS(temps_sk),
 	CONSTRAINT fk_container FOREIGN KEY(container_sk) REFERENCES DIM_CONTAINERS (container_sk),
