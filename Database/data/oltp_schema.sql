@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS USERS(
     is_active BOOLEAN  DEFAULT TRUE NOT NULL ,
     created_at TIMESTAMP NOT NULL 
 );
-
+    
 CREATE TABLE IF NOT EXISTS ROLES(
     id_role INTEGER  PRIMARY KEY ,
     name VARCHAR (20) NOT NULL ,
@@ -105,6 +105,7 @@ CREATE TABLE IF NOT EXISTS ROUTES(--TOURNEE
     code VARCHAR(10) NOT NULL ,
     date DATE NOT NULL ,
     status VARCHAR(20) NOT NULL,
+    geom_route GEOMETRY(LineString, 4326);
     distance_m DECIMAL(5,2) NOT NULL ,
     duration_min INTEGER NOT NULL , 
     id_vehicule INTEGER NOT NULL REFERENCES VEHICULES(id_vehicule),

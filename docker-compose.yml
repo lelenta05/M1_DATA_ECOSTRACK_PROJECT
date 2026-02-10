@@ -1,33 +1,52 @@
-services:
+services: 
+
+  #Base de données Source (L'Application)
   ecotrack_oltp : #nom du service 
     image: postgis/postgis:15-3.3 #image officielle de postgreSQL et postgis installe 
     container_name: ecotrack_oltp # nom du conteneur 
     environment:
-      POSTGRES_DB: ecotrack_oltp   #nom de la datawarehoue 
-      POSTGRES_USER: admin  # nom de l'user 
-      POSTGRES_PASSWORD: admin # mot de passe a utilise est : DB_PASSWORD qui se trouve dans .env sinon utilise NewEcotrack2025 
+      POSTGRES_DB: ${POSTGRES_DB_OLTP}   #nom de la datawarehoue 
+      POSTGRES_USER: ${POSTGRES_USER}  # nom de l'user 
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} # mot de passe a utilise est : DB_PASSWORD qui se trouve dans .env sinon utilise NewEcotrack2025 
     ports:
       - "5432:5432" # le port qu'on a utilise 
     volumes:
     #persistance des donnees
-      - postgresql_oltp_data:/var/lib/postgresql/data # le dossier ou postgresql stocke ses donnees dans le conteneur 
+      - m1_data_ecostrack_project_postgresql_oltp_data:/var/lib/postgresql/data # le dossier ou postgresql stocke ses donnees dans le conteneur 
       - ./sql/data/oltp_schema.sql:/docker-entrypoint-initdb.d/oltp_schema.sql # permet d'excecute les fichiers .sql lors de la creation de la base 
+    
     restart: unless-stopped #redemarrage automatique qui peut etre arrete avec la cmd docker stop
-
+  
+  #Base de données Destination (L'Entrepôt
   ecotrack_olap:
     image: postgis/postgis:15-3.3  #pour le datawarehouse 
     environment:
-      POSTGRES_DB: ecotrack_olap
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: ${POSTGRES_DB_OLAP}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "5433:5432"
+      - "5433:5432" # le premier port c'est pour le pc et le second dans docker 
     volumes:
-      - postgresql_olap_data:/var/lib/postgresql/data # le dossier ou postgresql stocke ses donnees dans le conteneur 
+      - m1_data_ecostrack_project_postgresql_olap_data:/var/lib/postgresql/data # le dossier ou postgresql stocke ses donnees dans le conteneur 
       - ./sql/data/olap_schema.sql:/docker-entrypoint-initdb.d/olap_schema.sql # permet d'excecute les fichiers .sql lors de la creation de la base 
     restart: unless-stopped
     depends_on:
     - ecotrack_oltp       
+     #ETL 
+  ecotrack_etl:
+    build: ./etl
+    container_name: ecotrack_etl
+    volumes:
+      - ./data:/data
+    depends_on:
+      - ecotrack_oltp
+      - ecotrack_olap
+    environment:
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      HOST_OLTP: ecotrack_oltp
+      HOST_OLAP: ecotrack_olap
+
       
   adminer:
     image: adminer:latest
@@ -41,8 +60,9 @@ services:
 
 
 volumes:
-  postgresql_oltp_data: # le volume qu'on va utilise pour le stockage de nos donnees et la comservation de nos donnee meme apres la supression du conteneur 
-    driver: local
-  postgresql_olap_data:
-    driver: local
+  m1_data_ecostrack_project_postgresql_oltp_data: # le volume qu'on va utilise pour le stockage de nos donnees et la comservation de nos donnee meme apres la supression du conteneur 
+    external: true
+  m1_data_ecostrack_project_postgresql_olap_data:
+      
+    
       
