@@ -1,4 +1,4 @@
-## quand utiliser un index B-tree ?
+## Quand utiliser un index B-tree ?
 # Principe
 
 Le B-tree est l’index par défaut dans PostgreSQL.
@@ -39,25 +39,25 @@ ORDER BY created_at DESC LIMIT 100
 ## Quand utiliser un index GIN ?
 Principe
 
-GIN = Generalized Inverted Index
+-GIN = Generalized Inverted Index
 
-conçu pour données multi-valeurs
+-conçu pour données multi-valeurs
 
-recherche à l’intérieur d’un document
+-recherche à l’intérieur d’un document
 
-très utilisé avec JSONB et tableaux
+-très utilisé avec JSONB et tableaux
 
-Cas d’usage
+-Cas d’usage
 
-Colonnes JSONB
+-Colonnes JSONB
 
-Recherche plein texte
+-Recherche plein texte
 
-Tableaux PostgreSQL
+-Tableaux PostgreSQL
 
-Métadonnées IoT flexibles
+-Métadonnées IoT flexibles
 
-Pourquoi pour ECOTRACK ?
+## Pourquoi pour ECOTRACK ?
 
 Si une table contient :
 
@@ -69,48 +69,48 @@ et des requêtes comme :
 WHERE metadata ->> 'type' = 'plastique'
 
 
-➡ le B-tree est inefficace
-➡ GIN devient optimal.
+- le B-tree est inefficace
+- GIN devient optimal.
 
-Exemple
+## Exemple
 CREATE INDEX idx_gin_metadata
 ON containers
 USING GIN (metadata);
 
-Avantages
+## Avantages
 
-Recherche rapide dans JSONB
+- Recherche rapide dans JSONB
 
-Support opérateurs @>, ?, ?&
+- Support opérateurs @>, ?, ?&
 
-Parfait pour schéma flexible
+- Parfait pour schéma flexible
 
-Limites
+## Limites
 
-Plus coûteux en écriture
+- Plus coûteux en écriture
 
-Taille d’index importante
+- Taille d’index importante
 
 ##Quand utiliser un index BRIN ?
 Principe
 
-BRIN = Block Range Index
+- BRIN = Block Range Index
 
-indexe des blocs de pages
+- indexe des blocs de pages
 
-pas chaque ligne
+- pas chaque ligne
 
-très compact
+- très compact
 
-Cas idéal
+- Cas idéal
 
-Tables très volumineuses
+- Tables très volumineuses
 
-Données naturellement triées
+- Données naturellement triées
 
-Séries temporelles
+- Séries temporelles
 
-➡ Exactement le cas de :
+### Exactement le cas de :
 
 fait_mesures(created_at)
 
@@ -119,16 +119,16 @@ CREATE INDEX idx_brin_fait_mesures_time
 ON fait_mesures
 USING BRIN (created_at);
 
-Avantages
+## Avantages
 
-Taille minuscule
+- Taille minuscule
 
-Création très rapide
+- Création très rapide
 
-Parfait pour >100M lignes
+- Parfait pour >100M lignes
 
-Limites
+## Limites
 
-Moins précis qu’un B-tree
+- Moins précis qu’un B-tree
 
-efficace seulement si données corrélées à l’ordre physique
+- efficace seulement si données corrélées à l’ordre physique
