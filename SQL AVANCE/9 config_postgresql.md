@@ -5,10 +5,11 @@
 --SHOW shared_buffers;
 --SHOW effective_cache_size;
 # RESULTAT 
-## shared_buffers:230MB; effective_cache_size:6553MB
+## shared_buffers: 230MB; 
+## Effective_cache_size: 6553MB;
 
 --SHOW work_mem;
-# resutat:work_men:4MB;
+# Resutat:work_men: 4MB;
 
 Rôle
 Mémoire utilisée :
@@ -17,7 +18,7 @@ Mémoire utilisée :
 - pour les GROUP BY
 - pour les hash joins
 
-# nb:work_mem est par opération et par requête.
+# Nb: work_mem est par opération et par requête.
 
 Si trop faible :
 - PostgreSQL fait des sorts sur disque
@@ -33,7 +34,7 @@ Règle générale serveur dédié :
 - Déjà probablement configuré ainsi.
 - Non modifiable sur Supabase Free.
 
-## work_mem recommandé
+## Work_mem recommandé
 
 Formule importante :
 ### work_mem × connexions simultanées × opérations
