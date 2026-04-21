@@ -1,30 +1,30 @@
-# 🌍 ECOTRACK - API de Prédiction du Taux de Remplissage
+#  ECOTRACK - API de Prédiction du Taux de Remplissage
 
-## 📌 Description du projet
+## Description du projet
 
 ECOTRACK est une solution basée sur la data permettant de prédire le niveau de remplissage de conteneurs intelligents.
 
 Ce projet combine :
-- 🔹 **Machine Learning (Random Forest)**
-- 🔹 **API REST avec FastAPI**
-- 🔹 **Données stockées sur PostgreSQL (Neon)**
+-  **Machine Learning (Random Forest)**
+-  **API REST avec FastAPI**
+-  **Données stockées sur PostgreSQL (Neon)**
 
 ---
 
-## 🎯 Objectifs
+## Objectifs
 
 L’API permet de :
 
-- 📊 Prédire le **taux de remplissage (%)** → modèle de **régression**
-- 🚦 Déterminer l’**état du conteneur** :
-  - 🟢 Faible
-  - 🟡 Moyen
-  - 🔴 Plein  
+-  Prédire le **taux de remplissage (%)** → modèle de **régression**
+-  Déterminer l’**état du conteneur** :
+  -  Faible
+  -  Moyen
+  -  Plein  
   → modèle de **classification**
 
 ---
 
-## 🧠 Architecture du projet
+## Architecture du projet
 
 ```bash
 project/
