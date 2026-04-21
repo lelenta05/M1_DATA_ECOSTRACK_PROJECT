@@ -57,13 +57,13 @@ Car :
 - utilisée pour tri
 - utilisée pour analyses temporelles
 
-## etapes et scripts
-# sauvegarde table mesures
+# Etapes et scripts
+## sauvegarde table mesures
 
 --CREATE TABLE analytics.fait_mesures_backup AS
 --SELECT * FROM analytics.fait_mesures;
 
-# creation table partitionée
+## creation table partitionée
 --CREATE TABLE analytics.fait_mesures_partition (
 --    id bigserial,
 --    container_sk integer,
@@ -72,7 +72,7 @@ Car :
 --)
 -- PARTITION BY RANGE (timestamp_mesure);
 
-# creation partitions
+## creation partitions
 
 --CREATE TABLE analytics.fait_mesures_2026_01
 --PARTITION OF analytics.fait_mesures_partition
@@ -94,7 +94,7 @@ Car :
 --PARTITION OF analytics.fait_mesures_partition
 --FOR VALUES FROM ('2026-05-01') TO ('2026-06-01');
 
-# migration des donnees
+## migration des donnees
 --INSERT INTO analytics.fait_mesures_partition (
 --  container_sk,		
 --  timestamp_mesure )
@@ -103,17 +103,17 @@ Car :
 --timestamp_mesure 
 --FROM analytics.fait_mesures_backup;
 
-# test partition pruning
+## test partition pruning
 --EXPLAIN
 --SELECT *
 --FROM analytics.fait_mesures_partition
 --WHERE timestamp_mesure >= '2026-02-01'
 --AND timestamp_mesure < '2026-03-01';
-# -- resultat : seq scan: on fait_mesures_2026_02 as fait_mesures_partition, cost: 25,3
+## -- resultat : seq scan: on fait_mesures_2026_02 as fait_mesures_partition, cost: 25,3
 
-## difficultés rencontrées
+# Difficultés rencontrées
 
-# Erreur lors de la migration des données
+## Erreur lors de la migration des données
 
 Erreur :
 INSERT has more expressions than target columns
@@ -127,18 +127,18 @@ table partitionnée
 Utilisation de SELECT *
 
 Solution :
-Spécifier explicitement les colonnes dans l’INSERT
+- Spécifier explicitement les colonnes dans l’INSERT
 
-Vérification des structures avec \d
+- Vérification des structures avec \d
 
-# Gestion du partition pruning
+## Gestion du partition pruning
 
 Difficulté :
-Comprendre comment vérifier que PostgreSQL n’analyse qu’une seule partition
+- Comprendre comment vérifier que PostgreSQL n’analyse qu’une seule partition
 
 Solution :
-Utilisation de EXPLAIN
+- Utilisation de EXPLAIN
 
 Recherche de :
-Partitions removed: X
+- Partitions removed: X
 
