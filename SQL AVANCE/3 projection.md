@@ -11,7 +11,7 @@ Calcul :
 
 10 000 × 96 × 365 = 350 400 000 lignes / an
 
-➡ La table fait_mesures atteindra environ **350 millions de lignes par an**.
+ La table fait_mesures atteindra environ **350 millions de lignes par an**.
 
 ## 2. Estimation de la taille de la table
 
@@ -87,7 +87,7 @@ Estimation :
 - Backups : ×2  
 - Traffic temps réel
 
-➡ Plan Team + stockage objet recommandé.
+ Plan Team + stockage objet recommandé.
 
 ## 5. Plan de capacité
 
