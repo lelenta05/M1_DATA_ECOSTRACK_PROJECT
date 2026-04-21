@@ -91,7 +91,7 @@ USING GIN (metadata);
 
 - Taille d’index importante
 
-##Quand utiliser un index BRIN ?
+## Quand utiliser un index BRIN ?
 Principe
 
 - BRIN = Block Range Index
