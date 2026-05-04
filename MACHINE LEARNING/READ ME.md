@@ -7,7 +7,7 @@ ECOTRACK est une solution basée sur la data permettant de prédire le niveau de
 Ce projet combine :
 -  **Machine Learning (Random Forest)**
 -  **API REST avec FastAPI**
--  **Données stockées sur PostgreSQL (Neon)**
+-  **Données stockées sur Azure Database Postgresql**
 
 ---
 
